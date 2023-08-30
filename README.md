@@ -4,7 +4,5 @@ This repo contains experimental code for collective variables discovery using eq
 
 # TODO
 
-- Move all to ecv and add typing 
-- Write benchmark experiments
-- LearnCV class -> main meat
-- Test with alaline
+- HOMO Benchmark
+- Simulation wrapper

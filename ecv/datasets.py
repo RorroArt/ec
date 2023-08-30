@@ -82,6 +82,10 @@ def load_qm9(url = QM9_URL, tar_destination=QM9_DESTINATION_TAR, destination_fol
         with open(processed_path, 'w') as json_file:
             json.dump(data_dict, json_file, indent=4)
 
+        with open(csv_file, 'r', newline='') as file:
+            reader = csv.DictReader(file)
+            return [row['homo'] for row in reader]
+
     else:
         with open(processed_path, 'r') as json_file:
             data_dict = json.load(json_file)

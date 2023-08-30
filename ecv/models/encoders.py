@@ -28,7 +28,7 @@ class Encoder(hk.Module):
         return self.reparametrize(key, latent)
 
 
-class MLP(Encoder):
+class MLP_Module(Encoder):
     def __init__(self, hidden, z_dim):
         super().__init__(z_dim=z_dim)
         self.encode = hk.Sequential([
@@ -37,7 +37,7 @@ class MLP(Encoder):
             hk.Linear(z_dim * 2),
         ])
 
-class EGNN(Encoder):
+class EGNN_Module(Encoder):
     def __init__(
         self,
         hidden_nf,
@@ -69,7 +69,27 @@ class EGNN(Encoder):
             x -= x * self.reg
         
         return self.embedding_out_x(x.flatten())
+
+# Wrappers to match the pytorch API  
+
+def MLP(hidden, z_dim):
+    def encoder(inputs, key):
+        model = MLP_Module(hidden, z_dim)
+        return model(inputs, key)
     
+    return encoder
+
+def EGNN(hidden_nf, z_dim, n_layers, activation, reg):
+    def encoder(inputs, key):
+        model = EGNN_Module(
+            hidden_nf=hidden_nf,
+            z_dim=z_dim,
+            n_layers=n_layers,
+            activation=jax.nn.swish,
+            reg=1e-3,
+        )
+        return model(inputs, key)
+    return encoder
 
 from emlp.reps import Rep
 from emlp.nn.haiku import uniform_rep, EMLPBlock, Linear, Sequential
