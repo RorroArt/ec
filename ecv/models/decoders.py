@@ -38,6 +38,21 @@ class SimpleAdjDecoder_Module(hk.Module):
         adj = jax.nn.sigmoid(adj_weights) # compute adjacency matrix
         
         return adj
+    
+class SimpleRelDecoder_Module(hk.Module):
+    def __init__(self, n_nodes, hidden):
+        super().__init__()
+        self.decoder = hk.Sequential([
+            hk.Linear(hidden),
+            jax.nn.tanh,
+            hk.Linear(n_nodes),
+
+        ]) 
+    def __call__(self, z):
+        x_z = self.decoder(z) # expand latent 
+        adj = jnp.einsum('i, j -> i j ', x_z, x_z) # dot product
+
+        return adj
 
 # Self explanatory  
 class RegressionDecoder_Module(hk.Module):
@@ -89,6 +104,12 @@ def SimpleAdjDecoder(n_nodes, hidden):
         model = SimpleAdjDecoder_Module(n_nodes, hidden)
         return model(z)
     return decoder 
+
+def SimpleRelDecoder(n_nodes, hidden):
+    def decoder(z):
+        model = SimpleRelDecoder_Module(n_nodes, hidden)
+        return model(z)
+    return decoder
 
 def RegressionDecoder(hidden):        
     def decoder(z):
